@@ -50,8 +50,8 @@ def get_matrix_template(title, heading, content, is_error=False):
                 border: 1px solid rgba(0, 255, 0, 0.3); margin-bottom: 20px; max-height: 200px; overflow-y: auto;
             }}
             .notice-box {{
-                border: 1px solid #f00; background: rgba(255, 0, 0, 0.1);
-                color: #ff4444; padding: 10px; font-size: 11px; font-weight: bold;
+                border: 1px solid {border_color}; background: rgba({ '255, 0, 0' if is_error else '0, 255, 0' }, 0.1);
+                color: {border_color}; padding: 10px; font-size: 11px; font-weight: bold;
                 margin-bottom: 20px; text-transform: uppercase;
             }}
             .copy-btn {{
@@ -98,7 +98,7 @@ def get_matrix_template(title, heading, content, is_error=False):
             function copyData() {{
                 const text = document.getElementById('json-output').innerText;
                 navigator.clipboard.writeText(text);
-                alert('JSON Copied!');
+                alert('JSON Data Copied to Clipboard!');
             }}
         </script>
     </body>
@@ -109,7 +109,7 @@ def get_matrix_template(title, heading, content, is_error=False):
 def extract_instagram():
     user_key = request.args.get('key')
     
-    # Error with red notice box restored
+    # Unauthorized Page with Red Notice
     if user_key != MY_OWN_API_SECURE_KEY:
         error_json = json.dumps({"status": "error", "code": 401, "message": "Invalid Security Key"}, indent=2)
         error_content = f'''
@@ -119,7 +119,7 @@ def extract_instagram():
         </div>
         <pre id="json-output">{error_json}</pre>
         <div class="notice-box">
-            NOTICE: ACCESS DENIED? CONTACT DEVELOPER ON TELEGRAM TO PURCHASE A PRIVATE API KEY.
+            NOTICE: ACCESS DENIED! CONTACT DEVELOPER ON TELEGRAM TO PURCHASE A PRIVATE LICENSE KEY.
         </div>
         '''
         return render_template_string(get_matrix_template("401 Unauthorized", "Security Alert", error_content, is_error=True)), 401
@@ -137,23 +137,39 @@ def extract_instagram():
             full_data = response.json()
             filtered_output = {
                 "status": "success", "developer": "@Configexe",
-                "data": {{ "biography": full_data.get("biography"), "followersCount": full_data.get("followersCount"), "fullName": full_data.get("fullName"), "id": full_data.get("id") }}
+                "data": {{ 
+                    "biography": full_data.get("biography"), 
+                    "followersCount": full_data.get("followersCount"), 
+                    "fullName": full_data.get("fullName"), 
+                    "id": full_data.get("id"),
+                    "fbid": full_data.get("fbid")
+                }}
             }
             pretty_json = json.dumps(filtered_output, indent=2)
+            # Success Page with Green Notice
             success_content = f'''
             <div class="header-info">
-                <span>PROTOCOL: SECURE</span>
+                <span>PROTOCOL: SECURE DATA</span>
                 <button class="copy-btn" onclick="copyData()">COPY JSON</button>
             </div>
             <pre id="json-output">{pretty_json}</pre>
+            <div class="notice-box">
+                UPGRADE: INTERESTED IN A PRIVATE API KEY? CONTACT THE DEVELOPER ON TELEGRAM.
+            </div>
             '''
-            return render_template_string(get_matrix_template("Success", "Data Extracted", success_content))
+            return render_template_string(get_matrix_template("Success", "Data Extracted Successfully", success_content))
         return jsonify({"error": "API Error"}), response.status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/')
 def home():
-    home_content = '<p>Teamexe Secure Instagram API is online.</p>'
+    # Home Page with Green Notice
+    home_content = f'''
+    <p>Teamexe Secure Instagram API is online and fully functional.</p>
+    <div class="notice-box">
+        API LICENSING: WANT TO PURCHASE YOUR OWN KEY? REACH OUT ON TELEGRAM @CONFIGEXE.
+    </div>
+    '''
     return render_template_string(get_matrix_template("Teamexe API", "SYSTEM STATUS: ACTIVE", home_content))
-        
+    
