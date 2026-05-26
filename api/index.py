@@ -11,101 +11,88 @@ HASDATA_URL = "https://api.hasdata.com/scrape/instagram/profile"
 # SECURITY KEY
 MY_OWN_API_SECURE_KEY = "TEAMEXE786" 
 
-# Updated HTML Template with Copy Button
-MATRIX_HTML = '''
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teamexe Insta API - Data</title>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <style>
-        body { margin: 0; padding: 20px; background: black; font-family: 'Share Tech Mono', monospace; color: #0f0; overflow-x: hidden; }
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; }
-        .data-container {
-            background: rgba(0, 15, 0, 0.95); border: 2px solid #0f0;
-            padding: 20px; border-radius: 8px; box-shadow: 0 0 20px #0f0;
-            max-width: 600px; margin: 40px auto; position: relative;
-        }
-        h2 { text-align: center; border-bottom: 2px solid #0f0; padding-bottom: 10px; margin-top: 0; font-size: 18px; }
-        pre { 
-            white-space: pre-wrap; word-wrap: break-word; font-size: 14px; 
-            color: #0f0; background: rgba(0, 30, 0, 0.5); padding: 15px; border-radius: 5px;
-            max-height: 450px; overflow-y: auto; border: 1px solid #030;
-        }
-        .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .status-badge { color: #0f0; font-weight: bold; font-size: 12px; }
-        .copy-btn {
-            background: transparent; border: 1px solid #0f0; color: #0f0;
-            padding: 5px 15px; cursor: pointer; font-family: 'Share Tech Mono', monospace;
-            font-weight: bold; transition: 0.3s; border-radius: 3px;
-        }
-        .copy-btn:hover { background: #0f0; color: #000; box-shadow: 0 0 10px #0f0; }
-        .copy-btn:active { transform: scale(0.95); }
-    </style>
-</head>
-<body>
-    <canvas id="matrix"></canvas>
-    <div class="data-container">
-        <h2>EXTRACTED DATA</h2>
-        <div class="controls">
-            <div class="status-badge">STATUS: SUCCESS (200)</div>
-            <button class="copy-btn" onclick="copyData()">COPY JSON</button>
+# Base Matrix HTML Template
+def get_matrix_template(title, heading, content, is_error=False):
+    border_color = "#f00" if is_error else "#0f0"
+    text_color = "#ff3333" if is_error else "#0f0"
+    shadow_color = "#f00" if is_error else "#0f0"
+    
+    return f'''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{title}</title>
+        <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+        <style>
+            body {{ margin: 0; padding: 20px; background: black; font-family: 'Share Tech Mono', monospace; color: {text_color}; overflow: hidden; }}
+            canvas {{ position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; }}
+            .container {{
+                background: rgba(0, 5, 0, 0.95); border: 2px solid {border_color};
+                padding: 25px; border-radius: 8px; box-shadow: 0 0 20px {shadow_color};
+                max-width: 500px; margin: 80px auto; text-align: center; position: relative;
+            {{
+            h2 {{ border-bottom: 1px solid {border_color}; padding-bottom: 10px; text-transform: uppercase; }}
+            .message {{ font-size: 16px; margin: 20px 0; line-height: 1.6; }}
+            .btn {{
+                display: inline-block; padding: 10px 20px; border: 1px solid {border_color};
+                color: {text_color}; text-decoration: none; font-weight: bold; transition: 0.3s;
+            }}
+            .btn:hover {{ background: {border_color}; color: #000; }}
+            pre {{ text-align: left; background: rgba(20, 0, 0, 0.5); padding: 15px; border-radius: 5px; color: #ff5555; overflow-x: auto; }}
+        </style>
+    </head>
+    <body>
+        <canvas id="matrix"></canvas>
+        <div class="container">
+            <h2>{heading}</h2>
+            <div class="message">{content}</div>
+            <a href="https://t.me/configexe" class="btn">CONTACT SUPPORT</a>
         </div>
-        <pre id="json-output">{{ json_data | safe }}</pre>
-    </div>
-
-    <script>
-        // Matrix Animation
-        const canvas = document.getElementById('matrix');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        const characters = "01";
-        const fontSize = 16;
-        const columns = canvas.width / fontSize;
-        const drops = Array(Math.floor(columns)).fill(1);
-        function draw() {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#0f0";
-            ctx.font = fontSize + "px monospace";
-            for (let i = 0; i < drops.length; i++) {
-                const text = characters.charAt(Math.floor(Math.random() * characters.length));
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) { drops[i] = 0; }
-                drops[i]++;
-            }
-        }
-        setInterval(draw, 40);
-
-        // Copy Function
-        function copyData() {
-            const text = document.getElementById('json-output').innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = document.querySelector('.copy-btn');
-                const originalText = btn.innerText;
-                btn.innerText = "COPIED!";
-                btn.style.background = "#0f0";
-                btn.style.color = "#000";
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.background = "transparent";
-                    btn.style.color = "#0f0";
-                }, 2000);
-            });
-        }
-    </script>
-</body>
-</html>
-'''
+        <script>
+            const canvas = document.getElementById('matrix');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const characters = "01";
+            const fontSize = 16;
+            const columns = canvas.width / fontSize;
+            const drops = Array(Math.floor(columns)).fill(1);
+            function draw() {{
+                ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "{border_color}";
+                ctx.font = fontSize + "px monospace";
+                for (let i = 0; i < drops.length; i++) {{
+                    const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {{ drops[i] = 0; }}
+                    drops[i]++;
+                }}
+            }}
+            setInterval(draw, 40);
+        </script>
+    </body>
+    </html>
+    '''
 
 @app.route('/ig-extract')
 def extract_instagram():
     user_key = request.args.get('key')
+    
+    # Professional Access Denied Page
     if user_key != MY_OWN_API_SECURE_KEY:
-        return jsonify({"status": "error", "status_code": 401, "message": "Access Denied!"}), 401
+        error_content = '''
+        <p>CRITICAL ERROR: INVALID_API_KEY</p>
+        <pre>{
+  "status": "error",
+  "status_code": 401,
+  "message": "Access Denied! Please provide a valid key."
+}</pre>
+        <p>Your IP has been logged for security purposes.</p>
+        '''
+        return render_template_string(get_matrix_template("Access Denied", "System Authentication Failed", error_content, is_error=True)), 401
 
     username = request.args.get('username')
     if not username:
@@ -119,7 +106,6 @@ def extract_instagram():
         
         if response.status_code == 200:
             full_data = response.json()
-            # Filtering specific fields
             filtered_output = {
                 "status": "success",
                 "status_code": 200,
@@ -136,22 +122,30 @@ def extract_instagram():
                     "isProfessionalAccount": full_data.get("isProfessionalAccount")
                 }
             }
-            # Fix for clean Emojis and Newlines
-            # ensure_ascii=False prevents \ud83c type encoding
             pretty_json = json.dumps(filtered_output, indent=2, ensure_ascii=False)
-            return render_template_string(MATRIX_HTML, json_data=pretty_json)
+            
+            # Success Data Page
+            success_content = f'''
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span style="font-size:12px;">STATUS: 200 OK</span>
+                <button onclick="copyData()" style="background:transparent; color:#0f0; border:1px solid #0f0; cursor:pointer;">COPY</button>
+            </div>
+            <pre id="json-data" style="text-align:left; background:rgba(0,30,0,0.5); padding:10px; color:#0f0; border:1px solid #030;">{pretty_json}</pre>
+            <script>function copyData() {{ const t = document.getElementById('json-data').innerText; navigator.clipboard.writeText(t); alert('Copied!'); }}</script>
+            '''
+            return render_template_string(get_matrix_template("Data Extracted", "Instagram Data Securely Fetched", success_content))
         
         else:
-            return jsonify({"status": "error", "status_code": response.status_code, "message": "Failed."}), response.status_code
+            return jsonify({"status": "error", "message": "Extraction failed"}), response.status_code
 
     except Exception as e:
-        return jsonify({"status": "error", "status_code": 500, "message": str(e)}), 500
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/')
 def home():
-    # Standard Home Page with redirection logic or info
-    info_json = json.dumps({"api": "Teamexe Insta API", "status": "ONLINE", "dev": "@Configexe"}, indent=2)
-    return render_template_string(MATRIX_HTML, json_data=info_json)
+    # Main Landing Page
+    home_content = "<p>Welcome to TeamExe Secure Instagram Scraper. Please use your API Key to access the data endpoint.</p><p>Telegram: @Configexe</p>"
+    return render_template_string(get_matrix_template("Teamexe Insta API", "TEAMEXE SECURE IG SCRAPER", home_content))
 
 app = app
-        
+    
