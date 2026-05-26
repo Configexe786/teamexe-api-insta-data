@@ -33,7 +33,7 @@ def extract_instagram():
 
 @app.route('/')
 def home():
-    # Matrix Hacker Theme Animation
+    # Matrix Sharp UI with centered compact box
     return '''
     <!DOCTYPE html>
     <html lang="en">
@@ -41,34 +41,39 @@ def home():
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>TeamExe Hacker API</title>
+        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
         <style>
-            body { margin: 0; padding: 0; background: black; overflow: hidden; font-family: 'Courier New', Courier, monospace; }
-            canvas { display: block; }
+            body { margin: 0; padding: 0; background: black; overflow: hidden; font-family: 'Share Tech Mono', monospace; }
+            canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; }
             .content {
                 position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                background: rgba(0, 0, 0, 0.85); padding: 40px; border: 2px solid #0f0;
-                border-radius: 10px; text-align: center; color: #0f0;
-                box-shadow: 0 0 20px #0f0; z-index: 10; width: 80%; max-width: 500px;
+                background: rgba(0, 20, 0, 0.9); padding: 25px; border: 1.5px solid #0f0;
+                border-radius: 5px; text-align: center; color: #0f0;
+                box-shadow: 0 0 15px #0f0; z-index: 10; width: 85%; max-width: 380px;
             }
-            h1 { font-size: 22px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px #0f0; }
-            .info { font-size: 18px; margin: 15px 0; font-weight: bold; }
+            h1 { 
+                font-family: 'Press Start 2P', cursive; font-size: 14px; 
+                line-height: 1.6; margin-bottom: 20px; color: #0f0; 
+                text-shadow: 2px 2px #003300; 
+            }
+            .info { font-size: 16px; margin: 10px 0; border-bottom: 1px dashed #0f0; padding-bottom: 5px; }
             .btn {
-                display: inline-block; margin-top: 25px; padding: 12px 30px;
-                border: 2px solid #0f0; color: #0f0; text-decoration: none;
-                font-weight: bold; text-transform: uppercase; transition: 0.4s;
-                background: transparent; cursor: pointer;
+                display: inline-block; margin-top: 20px; padding: 10px 20px;
+                border: 1px solid #0f0; color: #0f0; text-decoration: none;
+                font-weight: bold; font-family: 'Press Start 2P', cursive; font-size: 10px;
+                transition: 0.3s; background: transparent; cursor: pointer;
             }
-            .btn:hover { background: #0f0; color: #000; box-shadow: 0 0 30px #0f0; }
+            .btn:hover { background: #0f0; color: #000; box-shadow: 0 0 20px #0f0; }
         </style>
     </head>
     <body>
         <canvas id="matrix"></canvas>
         <div class="content">
-            <h1>TeamExe Secure IG Scraper API</h1>
-            <div class="info">SYSTEM STATUS: LIVE</div>
-            <div class="info">Developer: Teamexe</div>
-            <div class="info">Telegram: @Configexe</div>
-            <a href="https://t.me/configexe" class="btn">Contact Telegram</a>
+            <h1>TEAMEXE SECURE IG SCRAPER API</h1>
+            <div class="info">STATUS: ONLINE</div>
+            <div class="info">DEV: TEAMEXE</div>
+            <div class="info">TG: @CONFIGEXE</div>
+            <a href="https://t.me/configexe" class="btn">CONTACT TELEGRAM</a>
         </div>
 
         <script>
@@ -77,7 +82,7 @@ def home():
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()*&^%";
+            const characters = "01";
             const fontSize = 16;
             const columns = canvas.width / fontSize;
             const drops = Array(Math.floor(columns)).fill(1);
@@ -97,7 +102,7 @@ def home():
                     drops[i]++;
                 }
             }
-            setInterval(draw, 33);
+            setInterval(draw, 40);
         </script>
     </body>
     </html>
