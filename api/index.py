@@ -12,8 +12,7 @@ HASDATA_URL = "https://api.hasdata.com/scrape/instagram/profile"
 MY_OWN_API_SECURE_KEY = "TEAMEXE786" 
 
 def get_matrix_template(title, heading, content, is_error=False):
-    """Generates the Matrix-themed UI for both success and error states."""
-    # Dynamic theme colors based on status
+    """Generates a perfectly centered Matrix-themed UI."""
     border_color = "#f00" if is_error else "#0f0"
     text_color = "#ff3333" if is_error else "#0f0"
     shadow_color = "rgba(255, 0, 0, 0.7)" if is_error else "rgba(0, 255, 0, 0.7)"
@@ -27,33 +26,79 @@ def get_matrix_template(title, heading, content, is_error=False):
         <title>{title}</title>
         <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Press+Start+2P&display=swap" rel="stylesheet">
         <style>
-            body {{ margin: 0; padding: 20px; background: black; font-family: 'Share Tech Mono', monospace; color: {text_color}; overflow-x: hidden; }}
-            canvas {{ position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; }}
-            .container {{
-                background: rgba(0, 10, 0, 0.95); border: 2px solid {border_color};
-                padding: 25px; border-radius: 12px; box-shadow: 0 0 25px {shadow_color};
-                max-width: 90%; width: 450px; margin: 40px auto; text-align: center; position: relative;
+            * {{ box-sizing: border-box; }}
+            body {{ 
+                margin: 0; 
+                padding: 0; 
+                background: black; 
+                font-family: 'Share Tech Mono', monospace; 
+                color: {text_color}; 
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
             }}
-            h2 {{ border-bottom: 1px solid {border_color}; padding-bottom: 15px; font-family: 'Press Start 2P', cursive; font-size: 12px; letter-spacing: 1px; }}
+            canvas {{ position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; }}
+            
+            .container {{
+                background: rgba(0, 5, 0, 0.95); 
+                border: 2px solid {border_color};
+                padding: 30px 20px; 
+                border-radius: 12px; 
+                box-shadow: 0 0 25px {shadow_color};
+                width: 90%; 
+                max-width: 420px; 
+                text-align: center; 
+                position: relative;
+                z-index: 10;
+            }}
+            
+            /* Heading Adjustment */
+            h2 {{ 
+                border-bottom: 1px solid {border_color}; 
+                padding-bottom: 15px; 
+                font-family: 'Press Start 2P', cursive; 
+                font-size: 14px; 
+                line-height: 1.5;
+                letter-spacing: 1px;
+                margin-top: 0;
+            }}
+            
             .message {{ font-size: 14px; margin: 20px 0; line-height: 1.6; color: #fff; }}
             
-            /* Responsive JSON display with wrap-around logic */
+            /* Secure JSON Box */
             pre {{ 
-                text-align: left; background: rgba(0, 20, 0, 0.7); padding: 15px; 
-                border-radius: 5px; color: {text_color}; font-size: 13px;
-                white-space: pre-wrap; word-wrap: break-word;
-                border: 1px inset {border_color}; margin-bottom: 20px;
+                text-align: left; 
+                background: rgba(0, 20, 0, 0.8); 
+                padding: 15px; 
+                border-radius: 5px; 
+                color: {text_color}; 
+                font-size: 12px;
+                white-space: pre-wrap; 
+                word-wrap: break-word;
+                border: 1px solid {border_color}; 
+                margin-bottom: 20px;
+                max-height: 250px;
+                overflow-y: auto;
             }}
 
-            /* High-visibility Call to Action */
             .btn {{
-                display: block; width: 85%; margin: 20px auto 0; padding: 14px; 
-                background: {border_color}; color: #000; text-decoration: none; 
-                font-weight: bold; border-radius: 4px; font-size: 14px;
-                box-shadow: 0 0 15px {shadow_color}; transition: 0.3s;
-                border: none; text-transform: uppercase;
+                display: block; 
+                width: 100%; 
+                padding: 15px; 
+                background: {border_color}; 
+                color: #000; 
+                text-decoration: none; 
+                font-weight: bold; 
+                border-radius: 4px; 
+                font-size: 14px;
+                box-shadow: 0 0 15px {shadow_color}; 
+                transition: 0.3s;
+                border: none; 
+                text-transform: uppercase;
             }}
-            .btn:hover {{ transform: scale(1.02); box-shadow: 0 0 30px {border_color}; opacity: 0.9; }}
+            .btn:hover {{ transform: translateY(-2px); box-shadow: 0 0 30px {border_color}; }}
             
             .copy-btn {{
                 float: right; background: transparent; border: 1px solid #0f0; 
@@ -105,16 +150,16 @@ def extract_instagram():
     """Handles Instagram profile extraction with security validation."""
     user_key = request.args.get('key')
     
-    # Secure Authorization Check
+    # Updated Error Message and UI
     if user_key != MY_OWN_API_SECURE_KEY:
         error_content = '''
-        <p style="color:#ff4444; font-weight:bold;">ACCESS DENIED: UNAUTHORIZED</p>
+        <p style="color:#ff4444; font-weight:bold; margin-bottom:15px;">ACCESS DENIED: UNAUTHORIZED</p>
         <pre>{
   "status": "error",
   "code": 401,
   "message": "Invalid Security Key"
 }</pre>
-        <p>A private license is required to access this endpoint. Please contact the official developer on Telegram to purchase a valid API key.</p>
+        <p>A private license key is required to access this endpoint. Please contact the official developer on Telegram to purchase a valid API key.</p>
         '''
         return render_template_string(get_matrix_template("401 Unauthorized", "Security Alert", error_content, is_error=True)), 401
 
@@ -130,7 +175,6 @@ def extract_instagram():
         
         if response.status_code == 200:
             full_data = response.json()
-            # Filtered dataset selection
             filtered_output = {
                 "status": "success",
                 "status_code": 200,
@@ -147,33 +191,31 @@ def extract_instagram():
                     "isProfessionalAccount": full_data.get("isProfessionalAccount")
                 }
             }
-            # Clean JSON formatting without ASCII escaping for emojis
             pretty_json = json.dumps(filtered_output, indent=2, ensure_ascii=False)
             
             success_content = f'''
             <div style="text-align:left; margin-bottom:10px;">
-                <span style="font-size:11px;">PROTOCOL: HTTPS | ENCRYPTION: ACTIVE</span>
+                <span style="font-size:10px;">PROTOCOL: SECURE | ENCRYPTION: AES-256</span>
                 <button class="copy-btn" onclick="copyData()">COPY JSON</button>
             </div>
             <pre id="json-output">{pretty_json}</pre>
             '''
-            return render_template_string(get_matrix_template("Extraction Successful", "Data Extracted Successfully", success_content))
+            return render_template_string(get_matrix_template("Success", "Data Extracted Successfully", success_content))
         
         else:
-            return jsonify({"status": "error", "message": "Failed to fetch data from provider."}), response.status_code
+            return jsonify({"status": "error", "message": "External API failure."}), response.status_code
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/')
 def home():
-    """Main dashboard for the Teamexe Insta API"""
+    """Main dashboard"""
     home_content = '''
-    <p>Welcome to the <b>Teamexe Insta API</b> portal. Secure data extraction is currently online.</p>
-    <p>Use the provided endpoint with your private key to initiate a scrape.</p>
+    <p>Teamexe Secure Instagram API is currently <b>ONLINE</b>.</p>
+    <p>Authorized access only. Unauthorized attempts are monitored.</p>
     '''
-    return render_template_string(get_matrix_template("Teamexe Insta API", "SYSTEM STATUS: ONLINE", home_content))
+    return render_template_string(get_matrix_template("Teamexe Insta API", "SYSTEM STATUS: ACTIVE", home_content))
 
-# Vercel Deployment Export
 app = app
     
