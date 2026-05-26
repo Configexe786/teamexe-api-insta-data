@@ -7,6 +7,7 @@ app = Flask(__name__)
 # HasData Configuration
 HASDATA_API_KEY = "fe8ccbd8-88d3-44dd-bf51-390a180d1ed0"
 HASDATA_URL = "https://api.hasdata.com/scrape/instagram/profile"
+HASDATA_BALANCE_URL = "https://api.hasdata.com/account/balance"
 
 # API Security Configuration
 MY_OWN_API_SECURE_KEY = "TEAMEXE786" 
@@ -29,32 +30,32 @@ def get_matrix_template(title, heading, content, is_error=False):
             body {{ 
                 margin: 0; padding: 0; background: black; 
                 font-family: 'Share Tech Mono', monospace; 
-                color: {text_color}; height: 100vh;
-                display: flex; align-items: center; justify-content: center; overflow: hidden;
+                color: {text_color}; min-height: 100vh;
+                display: flex; align-items: center; justify-content: center; overflow-x: hidden;
             }}
             canvas {{ position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; }}
             .container {{
                 background: rgba(0, 5, 0, 0.95); border: 2px solid {border_color};
                 padding: 25px; border-radius: 15px; box-shadow: 0 0 25px {shadow_color};
-                width: 92%; max-width: 420px; text-align: center; position: relative;
+                width: 92%; max-width: 420px; text-align: center; position: relative; margin: 20px 0;
             }}
             h2 {{ 
                 border-bottom: 1px solid {border_color}; padding-bottom: 15px; 
-                font-family: 'Press Start 2P', cursive; font-size: 13px; 
+                font-family: 'Press Start 2P', cursive; font-size: 11px; 
                 line-height: 1.6; letter-spacing: 1px; margin-top: 0;
             }}
             .header-info {{ display: flex; justify-content: space-between; align-items: center; margin: 15px 0 10px 0; font-size: 11px; }}
-            .message {{ font-size: 15px; margin: 20px 0; line-height: 1.5; color: #fff; }}
+            .message {{ font-size: 14px; margin: 20px 0; line-height: 1.5; color: #fff; }}
             pre {{ 
                 text-align: left; background: rgba(0, 15, 0, 0.9); 
                 padding: 15px; border-radius: 8px; color: {text_color}; 
-                font-size: 12px; white-space: pre-wrap; word-wrap: break-word;
-                border: 1px solid rgba(0, 255, 0, 0.3); margin: 0 0 20px 0; max-height: 250px; overflow-y: auto;
+                font-size: 11px; white-space: pre-wrap; word-wrap: break-word;
+                border: 1px solid rgba(0, 255, 0, 0.3); margin: 0 0 20px 0; max-height: 300px; overflow-y: auto;
             }}
             .usage-box {{
                 border: 1px solid {border_color}; background: rgba(0, 255, 0, 0.05);
                 padding: 12px; font-size: 11px; text-align: left; margin-bottom: 20px;
-                line-height: 1.6;
+                line-height: 1.6; border-radius: 5px;
             }}
             .copy-btn {{
                 background: transparent; border: 1px solid {border_color}; 
@@ -100,7 +101,7 @@ def get_matrix_template(title, heading, content, is_error=False):
             function copyData() {{
                 const text = document.getElementById('json-output').innerText;
                 navigator.clipboard.writeText(text);
-                alert('JSON Data Copied!');
+                alert('Data Copied!');
             }}
         </script>
     </body>
@@ -112,35 +113,35 @@ def extract_instagram():
     user_key = request.args.get('key')
     
     if user_key != MY_OWN_API_SECURE_KEY:
-        error_json = json.dumps({"status": "error", "code": 401, "message": "Invalid Security Key"}, indent=2)
         error_content = f'''
-        <div class="header-info">
-            <span>ERROR: AUTH_FAILED</span>
-            <button class="copy-btn" onclick="copyData()">COPY JSON</button>
+        <p style="color:#ff4444;">SECURITY ALERT: INVALID LICENSE KEY</p>
+        <div class="usage-box" style="border-color:#f00; background:rgba(255,0,0,0.1);">
+            ACCESS STATUS: DENIED<br>
+            REASON: AUTHENTICATION FAILED
         </div>
-        <pre id="json-output">{error_json}</pre>
-        <p style="color:#ff4444; font-size:12px;">UNAUTHORIZED ACCESS DETECTED. PLEASE PROVIDE A VALID LICENSE KEY.</p>
         '''
         return render_template_string(get_matrix_template("401 Unauthorized", "Security Alert", error_content, is_error=True)), 401
 
     username = request.args.get('username')
-    if not username:
-        return jsonify({"status": "error", "message": "Username missing"}), 400
+    if not username: return jsonify({"error": "Username missing"}), 400
 
     headers = {"Content-Type": "application/json", "x-api-key": HASDATA_API_KEY}
-    params = {"handle": username}
-
+    
     try:
-        response = requests.get(HASDATA_URL, headers=headers, params=params, timeout=30)
+        # 1. Scrape Data
+        response = requests.get(HASDATA_URL, headers=headers, params={"handle": username}, timeout=30)
+        
+        # 2. Fetch Balance explicitly
+        balance_res = requests.get(HASDATA_BALANCE_URL, headers=headers)
+        balance_data = balance_res.json() if balance_res.status_code == 200 else {}
+        
+        remaining_credits = balance_data.get('remainingRequests', 0)
+        # 1 search = 10 credits typically on HasData
+        remaining_searches = int(remaining_credits / 10) if remaining_credits else 0
+        used_searches = 100 - remaining_searches
+
         if response.status_code == 200:
             full_data = response.json()
-            
-            # Extract Remaining Credits from HasData Headers
-            # HasData typically returns 'x-api-credits-remaining' header
-            remaining = response.headers.get('x-api-credits-remaining', 'N/A')
-            used_credits = 1000 - int(remaining) if remaining != 'N/A' else 'Unknown'
-            total_searches = int(int(remaining)/10) if remaining != 'N/A' else '0'
-
             filtered_output = {
                 "status": "success",
                 "developer": "@Configexe",
@@ -154,7 +155,6 @@ def extract_instagram():
             }
             pretty_json = json.dumps(filtered_output, indent=2, ensure_ascii=False)
             
-            # Usage Box replacing the "Buy Key" note
             success_content = f'''
             <div class="header-info">
                 <span>PROTOCOL: SECURE DATA</span>
@@ -162,22 +162,21 @@ def extract_instagram():
             </div>
             <pre id="json-output">{pretty_json}</pre>
             <div class="usage-box">
-                <b>KEY VALIDATION STATUS:</b> <span style="color:#0f0">ACTIVE</span><br>
-                <b>REMAINING SEARCHES:</b> {total_searches} / 100<br>
-                <b>API CREDITS LEFT:</b> {remaining} (Free Plan)
+                <b>KEY VALIDATION:</b> <span style="color:#0f0">ACTIVE (TEAMEXE786)</span><br>
+                <b>SEARCHES USED:</b> {used_searches} / 100<br>
+                <b>REMAINING SEARCHES:</b> {remaining_searches}<br>
+                <b>API BALANCE:</b> {remaining_credits} Credits
             </div>
             '''
             return render_template_string(get_matrix_template("Success", "Data Extracted Successfully", success_content))
+        
         return jsonify({"error": "External API Error"}), response.status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/')
 def home():
-    home_content = '''
-    <p>Teamexe Secure Instagram API is online and fully functional.</p>
-    <p style="font-size:12px; color:#888;">System status: Operating normally.</p>
-    '''
-    return render_template_string(get_matrix_template("Teamexe API", "SYSTEM STATUS: ACTIVE", home_content))
+    return render_template_string(get_matrix_template("Teamexe API", "SYSTEM STATUS: ACTIVE", "<p>Teamexe Secure Instagram API is online.</p>"))
 
 app = app
+    
