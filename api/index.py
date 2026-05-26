@@ -12,7 +12,7 @@ HASDATA_URL = "https://api.hasdata.com/scrape/instagram/profile"
 MY_OWN_API_SECURE_KEY = "TEAMEXE786" 
 
 def get_matrix_template(title, heading, content, is_error=False):
-    """Generates a perfectly centered Matrix-themed UI with fixed copy button."""
+    """Generates the original Matrix UI with professional fixes."""
     border_color = "#f00" if is_error else "#0f0"
     text_color = "#ff3333" if is_error else "#0f0"
     shadow_color = "rgba(255, 0, 0, 0.7)" if is_error else "rgba(0, 255, 0, 0.7)"
@@ -37,47 +37,43 @@ def get_matrix_template(title, heading, content, is_error=False):
             
             .container {{
                 background: rgba(0, 5, 0, 0.95); border: 2px solid {border_color};
-                padding: 25px; border-radius: 12px; box-shadow: 0 0 25px {shadow_color};
+                padding: 25px; border-radius: 15px; box-shadow: 0 0 25px {shadow_color};
                 width: 92%; max-width: 420px; text-align: center; position: relative;
             }}
             
             h2 {{ 
                 border-bottom: 1px solid {border_color}; padding-bottom: 15px; 
-                font-family: 'Press Start 2P', cursive; font-size: 13px; 
+                font-family: 'Press Start 2P', cursive; font-size: 14px; 
                 line-height: 1.6; letter-spacing: 1px; margin-top: 0;
             }}
             
             .header-info {{
                 display: flex; justify-content: space-between; align-items: center;
-                margin: 15px 0 10px 0; font-size: 10px; text-transform: uppercase;
+                margin: 15px 0 10px 0; font-size: 11px;
             }}
 
-            .message {{ font-size: 14px; margin: 15px 0; line-height: 1.5; color: #fff; }}
-            
-            /* Professional JSON Box */
-            .json-wrapper {{ position: relative; margin-top: 10px; }}
+            .message {{ font-size: 15px; margin: 20px 0; line-height: 1.5; color: #fff; }}
             
             pre {{ 
                 text-align: left; background: rgba(0, 15, 0, 0.9); 
-                padding: 15px; border-radius: 6px; color: {text_color}; 
+                padding: 15px; border-radius: 8px; color: {text_color}; 
                 font-size: 12px; white-space: pre-wrap; word-wrap: break-word;
-                border: 1px solid rgba({ '255,0,0' if is_error else '0,255,0' }, 0.3);
-                margin: 0 0 20px 0; max-height: 220px; overflow-y: auto;
+                border: 1px solid rgba(0, 255, 0, 0.3);
+                margin: 0 0 20px 0; max-height: 250px; overflow-y: auto;
             }}
 
-            /* Clean Copy Button */
             .copy-btn {{
                 background: transparent; border: 1px solid {border_color}; 
-                color: {border_color}; padding: 5px 12px; cursor: pointer; 
+                color: {border_color}; padding: 6px 12px; cursor: pointer; 
                 font-family: 'Share Tech Mono', monospace; font-size: 11px;
-                border-radius: 3px; transition: 0.2s;
+                border-radius: 4px; transition: 0.2s;
             }}
             .copy-btn:hover {{ background: {border_color}; color: #000; font-weight: bold; }}
 
             .btn-dev {{
                 display: block; width: 100%; padding: 15px; 
                 background: {border_color}; color: #000; text-decoration: none; 
-                font-weight: bold; border-radius: 6px; font-size: 14px;
+                font-weight: bold; border-radius: 8px; font-size: 14px;
                 box-shadow: 0 0 15px {shadow_color}; border: none; text-transform: uppercase;
             }}
         </style>
@@ -127,7 +123,7 @@ def get_matrix_template(title, heading, content, is_error=False):
 def extract_instagram():
     user_key = request.args.get('key')
     
-    # Unauthorized Access with Copy Button
+    # Error Page fix
     if user_key != MY_OWN_API_SECURE_KEY:
         error_json = json.dumps({"status": "error", "code": 401, "message": "Invalid Security Key"}, indent=2)
         error_content = f'''
@@ -152,13 +148,24 @@ def extract_instagram():
         response = requests.get(HASDATA_URL, headers=headers, params=params, timeout=30)
         if response.status_code == 200:
             full_data = response.json()
-            filtered_output = {{
-                "status": "success", "status_code": 200, "developer": "@Configexe",
-                "data": {{ "fullName": full_data.get("fullName"), "followers": full_data.get("followersCount"), "bio": full_data.get("biography") }}
-            }}
+            # Full Data structure restored
+            filtered_output = {
+                "status": "success",
+                "status_code": 200,
+                "developer": "@Configexe",
+                "data": {
+                    "biography": full_data.get("biography"),
+                    "fbid": full_data.get("fbid"),
+                    "followersCount": full_data.get("followersCount"),
+                    "followsCount": full_data.get("followsCount"),
+                    "fullName": full_data.get("fullName"),
+                    "id": full_data.get("id"),
+                    "isProfessionalAccount": full_data.get("isProfessionalAccount"),
+                    "postsCount": full_data.get("postsCount")
+                }
+            }
             pretty_json = json.dumps(filtered_output, indent=2, ensure_ascii=False)
             
-            # Success Page with Professional Copy Button
             success_content = f'''
             <div class="header-info">
                 <span>PROTOCOL: SECURE | AES-256</span>
@@ -168,14 +175,15 @@ def extract_instagram():
             '''
             return render_template_string(get_matrix_template("Success", "Data Extracted Successfully", success_content))
         else:
-            return jsonify({{"status": "error", "message": "API error"}}), 500
+            return jsonify({"status": "error", "message": "API Response Error"}), response.status_code
     except Exception as e:
-        return jsonify({{"status": "error", "message": str(e)}}), 500
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/')
 def home():
+    """Restored original Home Page UI"""
     home_content = '<p>Teamexe Secure Instagram API is online.</p>'
-    return render_template_string(get_matrix_template("Home", "SYSTEM STATUS: ACTIVE", home_content))
+    return render_template_string(get_matrix_template("Teamexe API", "SYSTEM STATUS: ACTIVE", home_content))
 
 app = app
     
