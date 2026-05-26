@@ -14,41 +14,54 @@ MY_OWN_API_SECURE_KEY = "TEAMEXE786"
 def extract_instagram():
     user_key = request.args.get('key')
     if user_key != MY_OWN_API_SECURE_KEY:
-        return jsonify({"status": "error", "message": "Unauthorized! Please provide valid TeamExe API Key."}), 401
+        return jsonify({"status": "error", "message": "Unauthorized!"}), 401
 
     username = request.args.get('username')
     if not username:
-        return jsonify({"status": "error", "message": "Username parameter is missing."}), 400
+        return jsonify({"status": "error", "message": "Username missing."}), 400
 
-    headers = {
-        "Content-Type": "application/json",
-        "x-api-key": HASDATA_API_KEY
-    }
+    headers = {"Content-Type": "application/json", "x-api-key": HASDATA_API_KEY}
     params = {"handle": username}
 
     try:
         response = requests.get(HASDATA_URL, headers=headers, params=params, timeout=30)
         if response.status_code == 200:
-            return jsonify({
-                "status": "success",
-                "dev": "@Configexe",
-                "data": response.json()
-            })
-        else:
-            return jsonify({"status": "error", "message": f"HasData Error: {response.status_code}"}), response.status_code
+            return jsonify({"status": "success", "dev": "@Configexe", "data": response.json()})
+        return jsonify({"status": "error", "message": "Data fetch failed"}), response.status_code
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/')
 def home():
-    # Home page design update
+    # Improved UI with Bold Fonts and Telegram Button
     return '''
-    <div style="text-align: center; margin-top: 50px; font-family: sans-serif;">
-        <h1>TeamExe Secure IG Scraper API is Live!</h1>
-        <p style="font-weight: 100; color: #555; margin-top: -10px;">Developer: Teamexe</p>
-        <p style="font-weight: 100; color: #555; margin-top: -10px;">Telegram: @Configexe</p>
-    </div>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>TeamExe API</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #f4f4f9; padding-top: 50px; }
+            .container { background: white; padding: 30px; border-radius: 15px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+            h1 { color: #333; margin-bottom: 20px; font-size: 24px; }
+            .info { font-size: 18px; color: #444; margin: 10px 0; font-weight: 600; }
+            .btn { 
+                display: inline-block; margin-top: 20px; padding: 12px 25px; 
+                background-color: #0088cc; color: white; text-decoration: none; 
+                border-radius: 8px; font-weight: bold; transition: 0.3s;
+            }
+            .btn:hover { background-color: #006699; transform: scale(1.05); }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>TeamExe Secure IG Scraper API is Live!</h1>
+            <div class="info">Developer: Teamexe</div>
+            <div class="info">Telegram: @Configexe</div>
+            <a href="https://t.me/configexe" class="btn">Contact Telegram</a>
+        </div>
+    </body>
+    </html>
     '''
 
 app = app
-            
