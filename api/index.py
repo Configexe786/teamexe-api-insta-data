@@ -12,7 +12,7 @@ HASDATA_URL = "https://api.hasdata.com/scrape/instagram/profile"
 MY_OWN_API_SECURE_KEY = "TEAMEXE786" 
 
 def get_matrix_template(title, heading, content, is_error=False):
-    """Generates a perfectly centered Matrix-themed UI."""
+    """Generates a perfectly centered Matrix-themed UI with fixed copy button."""
     border_color = "#f00" if is_error else "#0f0"
     text_color = "#ff3333" if is_error else "#0f0"
     shadow_color = "rgba(255, 0, 0, 0.7)" if is_error else "rgba(0, 255, 0, 0.7)"
@@ -28,81 +28,57 @@ def get_matrix_template(title, heading, content, is_error=False):
         <style>
             * {{ box-sizing: border-box; }}
             body {{ 
-                margin: 0; 
-                padding: 0; 
-                background: black; 
+                margin: 0; padding: 0; background: black; 
                 font-family: 'Share Tech Mono', monospace; 
-                color: {text_color}; 
-                height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                overflow: hidden;
+                color: {text_color}; height: 100vh;
+                display: flex; align-items: center; justify-content: center; overflow: hidden;
             }}
             canvas {{ position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; }}
             
             .container {{
-                background: rgba(0, 5, 0, 0.95); 
-                border: 2px solid {border_color};
-                padding: 30px 20px; 
-                border-radius: 12px; 
-                box-shadow: 0 0 25px {shadow_color};
-                width: 90%; 
-                max-width: 420px; 
-                text-align: center; 
-                position: relative;
-                z-index: 10;
+                background: rgba(0, 5, 0, 0.95); border: 2px solid {border_color};
+                padding: 25px; border-radius: 12px; box-shadow: 0 0 25px {shadow_color};
+                width: 92%; max-width: 420px; text-align: center; position: relative;
             }}
             
-            /* Heading Adjustment */
             h2 {{ 
-                border-bottom: 1px solid {border_color}; 
-                padding-bottom: 15px; 
-                font-family: 'Press Start 2P', cursive; 
-                font-size: 14px; 
-                line-height: 1.5;
-                letter-spacing: 1px;
-                margin-top: 0;
+                border-bottom: 1px solid {border_color}; padding-bottom: 15px; 
+                font-family: 'Press Start 2P', cursive; font-size: 13px; 
+                line-height: 1.6; letter-spacing: 1px; margin-top: 0;
             }}
             
-            .message {{ font-size: 14px; margin: 20px 0; line-height: 1.6; color: #fff; }}
-            
-            /* Secure JSON Box */
-            pre {{ 
-                text-align: left; 
-                background: rgba(0, 20, 0, 0.8); 
-                padding: 15px; 
-                border-radius: 5px; 
-                color: {text_color}; 
-                font-size: 12px;
-                white-space: pre-wrap; 
-                word-wrap: break-word;
-                border: 1px solid {border_color}; 
-                margin-bottom: 20px;
-                max-height: 250px;
-                overflow-y: auto;
+            .header-info {{
+                display: flex; justify-content: space-between; align-items: center;
+                margin: 15px 0 10px 0; font-size: 10px; text-transform: uppercase;
             }}
 
-            .btn {{
-                display: block; 
-                width: 100%; 
-                padding: 15px; 
-                background: {border_color}; 
-                color: #000; 
-                text-decoration: none; 
-                font-weight: bold; 
-                border-radius: 4px; 
-                font-size: 14px;
-                box-shadow: 0 0 15px {shadow_color}; 
-                transition: 0.3s;
-                border: none; 
-                text-transform: uppercase;
-            }}
-            .btn:hover {{ transform: translateY(-2px); box-shadow: 0 0 30px {border_color}; }}
+            .message {{ font-size: 14px; margin: 15px 0; line-height: 1.5; color: #fff; }}
             
+            /* Professional JSON Box */
+            .json-wrapper {{ position: relative; margin-top: 10px; }}
+            
+            pre {{ 
+                text-align: left; background: rgba(0, 15, 0, 0.9); 
+                padding: 15px; border-radius: 6px; color: {text_color}; 
+                font-size: 12px; white-space: pre-wrap; word-wrap: break-word;
+                border: 1px solid rgba({ '255,0,0' if is_error else '0,255,0' }, 0.3);
+                margin: 0 0 20px 0; max-height: 220px; overflow-y: auto;
+            }}
+
+            /* Clean Copy Button */
             .copy-btn {{
-                float: right; background: transparent; border: 1px solid #0f0; 
-                color: #0f0; padding: 4px 10px; cursor: pointer; font-size: 10px;
+                background: transparent; border: 1px solid {border_color}; 
+                color: {border_color}; padding: 5px 12px; cursor: pointer; 
+                font-family: 'Share Tech Mono', monospace; font-size: 11px;
+                border-radius: 3px; transition: 0.2s;
+            }}
+            .copy-btn:hover {{ background: {border_color}; color: #000; font-weight: bold; }}
+
+            .btn-dev {{
+                display: block; width: 100%; padding: 15px; 
+                background: {border_color}; color: #000; text-decoration: none; 
+                font-weight: bold; border-radius: 6px; font-size: 14px;
+                box-shadow: 0 0 15px {shadow_color}; border: none; text-transform: uppercase;
             }}
         </style>
     </head>
@@ -111,7 +87,7 @@ def get_matrix_template(title, heading, content, is_error=False):
         <div class="container">
             <h2>{heading}</h2>
             <div class="message">{content}</div>
-            <a href="https://t.me/configexe" class="btn">Contact Developer</a>
+            <a href="https://t.me/configexe" class="btn-dev">Contact Developer</a>
         </div>
         <script>
             const canvas = document.getElementById('matrix');
@@ -138,7 +114,9 @@ def get_matrix_template(title, heading, content, is_error=False):
             function copyData() {{
                 const text = document.getElementById('json-output').innerText;
                 navigator.clipboard.writeText(text);
-                alert('JSON copied to clipboard!');
+                const btn = document.querySelector('.copy-btn');
+                btn.innerText = 'COPIED!';
+                setTimeout(() => {{ btn.innerText = 'COPY JSON'; }}, 2000);
             }}
         </script>
     </body>
@@ -147,18 +125,18 @@ def get_matrix_template(title, heading, content, is_error=False):
 
 @app.route('/ig-extract')
 def extract_instagram():
-    """Handles Instagram profile extraction with security validation."""
     user_key = request.args.get('key')
     
-    # Updated Error Message and UI
+    # Unauthorized Access with Copy Button
     if user_key != MY_OWN_API_SECURE_KEY:
-        error_content = '''
-        <p style="color:#ff4444; font-weight:bold; margin-bottom:15px;">ACCESS DENIED: UNAUTHORIZED</p>
-        <pre>{
-  "status": "error",
-  "code": 401,
-  "message": "Invalid Security Key"
-}</pre>
+        error_json = json.dumps({"status": "error", "code": 401, "message": "Invalid Security Key"}, indent=2)
+        error_content = f'''
+        <p style="color:#ff4444; font-weight:bold; margin-bottom:5px;">ACCESS DENIED: UNAUTHORIZED</p>
+        <div class="header-info">
+            <span>TYPE: AUTH_ERROR</span>
+            <button class="copy-btn" onclick="copyData()">COPY JSON</button>
+        </div>
+        <pre id="json-output">{error_json}</pre>
         <p>A private license key is required to access this endpoint. Please contact the official developer on Telegram to purchase a valid API key.</p>
         '''
         return render_template_string(get_matrix_template("401 Unauthorized", "Security Alert", error_content, is_error=True)), 401
@@ -172,50 +150,32 @@ def extract_instagram():
 
     try:
         response = requests.get(HASDATA_URL, headers=headers, params=params, timeout=30)
-        
         if response.status_code == 200:
             full_data = response.json()
-            filtered_output = {
-                "status": "success",
-                "status_code": 200,
-                "developer": "@Configexe",
-                "data": {
-                    "biography": full_data.get("biography"),
-                    "fbid": full_data.get("fbid"),
-                    "followersCount": full_data.get("followersCount"),
-                    "followsCount": full_data.get("followsCount"),
-                    "fullName": full_data.get("fullName"),
-                    "highlightsCount": full_data.get("highlightsCount"),
-                    "id": full_data.get("id"),
-                    "igtvVideoCount": full_data.get("igtvVideoCount"),
-                    "isProfessionalAccount": full_data.get("isProfessionalAccount")
-                }
-            }
+            filtered_output = {{
+                "status": "success", "status_code": 200, "developer": "@Configexe",
+                "data": {{ "fullName": full_data.get("fullName"), "followers": full_data.get("followersCount"), "bio": full_data.get("biography") }}
+            }}
             pretty_json = json.dumps(filtered_output, indent=2, ensure_ascii=False)
             
+            # Success Page with Professional Copy Button
             success_content = f'''
-            <div style="text-align:left; margin-bottom:10px;">
-                <span style="font-size:10px;">PROTOCOL: SECURE | ENCRYPTION: AES-256</span>
+            <div class="header-info">
+                <span>PROTOCOL: SECURE | AES-256</span>
                 <button class="copy-btn" onclick="copyData()">COPY JSON</button>
             </div>
             <pre id="json-output">{pretty_json}</pre>
             '''
             return render_template_string(get_matrix_template("Success", "Data Extracted Successfully", success_content))
-        
         else:
-            return jsonify({"status": "error", "message": "External API failure."}), response.status_code
-
+            return jsonify({{"status": "error", "message": "API error"}}), 500
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({{"status": "error", "message": str(e)}}), 500
 
 @app.route('/')
 def home():
-    """Main dashboard"""
-    home_content = '''
-    <p>Teamexe Secure Instagram API is currently <b>ONLINE</b>.</p>
-    <p>Authorized access only. Unauthorized attempts are monitored.</p>
-    '''
-    return render_template_string(get_matrix_template("Teamexe Insta API", "SYSTEM STATUS: ACTIVE", home_content))
+    home_content = '<p>Teamexe Secure Instagram API is online.</p>'
+    return render_template_string(get_matrix_template("Home", "SYSTEM STATUS: ACTIVE", home_content))
 
 app = app
     
