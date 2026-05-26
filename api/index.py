@@ -12,7 +12,6 @@ HASDATA_URL = "https://api.hasdata.com/scrape/instagram/profile"
 MY_OWN_API_SECURE_KEY = "TEAMEXE786" 
 
 def get_matrix_template(title, heading, content, is_error=False):
-    """Generates the original Matrix UI with professional fixes."""
     border_color = "#f00" if is_error else "#0f0"
     text_color = "#ff3333" if is_error else "#0f0"
     shadow_color = "rgba(255, 0, 0, 0.7)" if is_error else "rgba(0, 255, 0, 0.7)"
@@ -34,53 +33,38 @@ def get_matrix_template(title, heading, content, is_error=False):
                 display: flex; align-items: center; justify-content: center; overflow: hidden;
             }}
             canvas {{ position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; }}
-            
             .container {{
                 background: rgba(0, 5, 0, 0.95); border: 2px solid {border_color};
                 padding: 25px; border-radius: 15px; box-shadow: 0 0 25px {shadow_color};
                 width: 92%; max-width: 420px; text-align: center; position: relative;
             }}
-            
             h2 {{ 
                 border-bottom: 1px solid {border_color}; padding-bottom: 15px; 
                 font-family: 'Press Start 2P', cursive; font-size: 13px; 
                 line-height: 1.6; letter-spacing: 1px; margin-top: 0;
             }}
-            
-            .header-info {{
-                display: flex; justify-content: space-between; align-items: center;
-                margin: 15px 0 10px 0; font-size: 11px;
-            }}
-
+            .header-info {{ display: flex; justify-content: space-between; align-items: center; margin: 15px 0 10px 0; font-size: 11px; }}
             .message {{ font-size: 15px; margin: 20px 0; line-height: 1.5; color: #fff; }}
-            
             pre {{ 
                 text-align: left; background: rgba(0, 15, 0, 0.9); 
                 padding: 15px; border-radius: 8px; color: {text_color}; 
                 font-size: 12px; white-space: pre-wrap; word-wrap: break-word;
-                border: 1px solid rgba({ '255, 0, 0' if is_error else '0, 255, 0' }, 0.3);
-                margin: 0 0 20px 0; max-height: 250px; overflow-y: auto;
+                border: 1px solid rgba(0, 255, 0, 0.3); margin: 0 0 20px 0; max-height: 250px; overflow-y: auto;
             }}
-
-            .notice-box {{
-                border: 1px solid {border_color}; background: rgba({ '255, 0, 0' if is_error else '0, 255, 0' }, 0.1);
-                color: {border_color}; padding: 10px; font-size: 11px; font-weight: bold;
-                margin-bottom: 20px; text-transform: uppercase;
+            .usage-box {{
+                border: 1px solid {border_color}; background: rgba(0, 255, 0, 0.05);
+                padding: 12px; font-size: 11px; text-align: left; margin-bottom: 20px;
+                line-height: 1.6;
             }}
-
             .copy-btn {{
                 background: transparent; border: 1px solid {border_color}; 
                 color: {border_color}; padding: 6px 12px; cursor: pointer; 
-                font-family: 'Share Tech Mono', monospace; font-size: 11px;
-                border-radius: 4px; transition: 0.2s;
+                font-family: 'Share Tech Mono', monospace; font-size: 11px; border-radius: 4px;
             }}
-            .copy-btn:hover {{ background: {border_color}; color: #000; font-weight: bold; }}
-
             .btn-dev {{
-                display: block; width: 100%; padding: 15px; 
-                background: {border_color}; color: #000; text-decoration: none; 
-                font-weight: bold; border-radius: 8px; font-size: 14px;
-                box-shadow: 0 0 15px {shadow_color}; border: none; text-transform: uppercase;
+                display: block; width: 100%; padding: 15px; background: {border_color}; 
+                color: #000; text-decoration: none; font-weight: bold; border-radius: 8px; 
+                font-size: 14px; box-shadow: 0 0 15px {shadow_color}; text-transform: uppercase;
             }}
         </style>
     </head>
@@ -116,7 +100,7 @@ def get_matrix_template(title, heading, content, is_error=False):
             function copyData() {{
                 const text = document.getElementById('json-output').innerText;
                 navigator.clipboard.writeText(text);
-                alert('JSON Data Copied to Clipboard!');
+                alert('JSON Data Copied!');
             }}
         </script>
     </body>
@@ -127,7 +111,6 @@ def get_matrix_template(title, heading, content, is_error=False):
 def extract_instagram():
     user_key = request.args.get('key')
     
-    # Error with red notice box restored
     if user_key != MY_OWN_API_SECURE_KEY:
         error_json = json.dumps({"status": "error", "code": 401, "message": "Invalid Security Key"}, indent=2)
         error_content = f'''
@@ -136,9 +119,7 @@ def extract_instagram():
             <button class="copy-btn" onclick="copyData()">COPY JSON</button>
         </div>
         <pre id="json-output">{error_json}</pre>
-        <div class="notice-box">
-            NOTICE: ACCESS DENIED! CONTACT DEVELOPER ON TELEGRAM TO PURCHASE A PRIVATE API KEY.
-        </div>
+        <p style="color:#ff4444; font-size:12px;">UNAUTHORIZED ACCESS DETECTED. PLEASE PROVIDE A VALID LICENSE KEY.</p>
         '''
         return render_template_string(get_matrix_template("401 Unauthorized", "Security Alert", error_content, is_error=True)), 401
 
@@ -153,7 +134,13 @@ def extract_instagram():
         response = requests.get(HASDATA_URL, headers=headers, params=params, timeout=30)
         if response.status_code == 200:
             full_data = response.json()
-            # Fixed dictionary structure to avoid "unhashable type" error
+            
+            # Extract Remaining Credits from HasData Headers
+            # HasData typically returns 'x-api-credits-remaining' header
+            remaining = response.headers.get('x-api-credits-remaining', 'N/A')
+            used_credits = 1000 - int(remaining) if remaining != 'N/A' else 'Unknown'
+            total_searches = int(int(remaining)/10) if remaining != 'N/A' else '0'
+
             filtered_output = {
                 "status": "success",
                 "developer": "@Configexe",
@@ -167,18 +154,21 @@ def extract_instagram():
             }
             pretty_json = json.dumps(filtered_output, indent=2, ensure_ascii=False)
             
+            # Usage Box replacing the "Buy Key" note
             success_content = f'''
             <div class="header-info">
                 <span>PROTOCOL: SECURE DATA</span>
                 <button class="copy-btn" onclick="copyData()">COPY JSON</button>
             </div>
             <pre id="json-output">{pretty_json}</pre>
-            <div class="notice-box">
-                UPGRADE: INTERESTED IN A PRIVATE API KEY? CONTACT THE DEVELOPER ON TELEGRAM.
+            <div class="usage-box">
+                <b>KEY VALIDATION STATUS:</b> <span style="color:#0f0">ACTIVE</span><br>
+                <b>REMAINING SEARCHES:</b> {total_searches} / 100<br>
+                <b>API CREDITS LEFT:</b> {remaining} (Free Plan)
             </div>
             '''
             return render_template_string(get_matrix_template("Success", "Data Extracted Successfully", success_content))
-        return jsonify({"error": "API Error"}), response.status_code
+        return jsonify({"error": "External API Error"}), response.status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -186,11 +176,8 @@ def extract_instagram():
 def home():
     home_content = '''
     <p>Teamexe Secure Instagram API is online and fully functional.</p>
-    <div class="notice-box">
-        API LICENSING: WANT TO PURCHASE YOUR OWN KEY? REACH OUT ON TELEGRAM @CONFIGEXE.
-    </div>
+    <p style="font-size:12px; color:#888;">System status: Operating normally.</p>
     '''
     return render_template_string(get_matrix_template("Teamexe API", "SYSTEM STATUS: ACTIVE", home_content))
 
 app = app
-        
