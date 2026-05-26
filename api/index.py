@@ -14,11 +14,11 @@ MY_OWN_API_SECURE_KEY = "TEAMEXE786"
 def extract_instagram():
     user_key = request.args.get('key')
     if user_key != MY_OWN_API_SECURE_KEY:
-        return jsonify({"status": "error", "message": "Access Denied! Key Required."}), 401
+        return jsonify({"status": "error", "message": "Access Denied!"}), 401
 
     username = request.args.get('username')
     if not username:
-        return jsonify({"status": "error", "message": "Target username missing."}), 400
+        return jsonify({"status": "error", "message": "Target missing."}), 400
 
     headers = {"Content-Type": "application/json", "x-api-key": HASDATA_API_KEY}
     params = {"handle": username}
@@ -33,7 +33,7 @@ def extract_instagram():
 
 @app.route('/')
 def home():
-    # Matrix Sharp UI with Compact Box and Professional Note
+    # Optimized UI with Ultra-Clear Professional Note
     return '''
     <!DOCTYPE html>
     <html lang="en">
@@ -47,28 +47,32 @@ def home():
             canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; }
             .content {
                 position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                background: rgba(0, 20, 0, 0.9); padding: 25px; border: 1.5px solid #0f0;
-                border-radius: 5px; text-align: center; color: #0f0;
-                box-shadow: 0 0 15px #0f0; z-index: 10; width: 85%; max-width: 380px;
+                background: rgba(0, 15, 0, 0.95); padding: 25px; border: 2px solid #0f0;
+                border-radius: 8px; text-align: center; color: #0f0;
+                box-shadow: 0 0 20px #0f0; z-index: 10; width: 85%; max-width: 380px;
             }
             h1 { 
-                font-family: 'Press Start 2P', cursive; font-size: 14px; 
-                line-height: 1.6; margin-bottom: 20px; color: #0f0; 
-                text-shadow: 2px 2px #003300; 
+                font-family: 'Press Start 2P', cursive; font-size: 13px; 
+                line-height: 1.8; margin-bottom: 20px; color: #0f0; 
+                text-shadow: 2px 2px #000; 
             }
-            .info { font-size: 16px; margin: 10px 0; border-bottom: 1px dashed #0f0; padding-bottom: 5px; }
-            .note { 
-                font-size: 11px; color: #ff0000; margin-top: 15px; 
-                font-family: 'Share Tech Mono', monospace; font-weight: bold;
-                text-shadow: 0 0 5px #ff0000;
+            .info { font-size: 17px; margin: 12px 0; border-bottom: 1px solid #040; padding-bottom: 8px; letter-spacing: 1px; }
+            .note-box {
+                margin: 20px 0; padding: 10px; border: 1px double #f00; background: rgba(50, 0, 0, 0.3);
+            }
+            .note-text { 
+                font-size: 14px; color: #ff3333; 
+                font-family: 'Share Tech Mono', monospace; 
+                font-weight: bold; line-height: 1.4;
+                text-transform: uppercase;
             }
             .btn {
-                display: inline-block; margin-top: 15px; padding: 10px 20px;
-                border: 1px solid #0f0; color: #0f0; text-decoration: none;
-                font-weight: bold; font-family: 'Press Start 2P', cursive; font-size: 10px;
+                display: inline-block; margin-top: 10px; padding: 12px 24px;
+                border: 2px solid #0f0; color: #0f0; text-decoration: none;
+                font-weight: bold; font-family: 'Press Start 2P', cursive; font-size: 9px;
                 transition: 0.3s; background: transparent; cursor: pointer;
             }
-            .btn:hover { background: #0f0; color: #000; box-shadow: 0 0 20px #0f0; }
+            .btn:hover { background: #0f0; color: #000; box-shadow: 0 0 25px #0f0; }
         </style>
     </head>
     <body>
@@ -78,7 +82,11 @@ def home():
             <div class="info">STATUS: ONLINE</div>
             <div class="info">DEV: TEAMEXE</div>
             <div class="info">TG: @CONFIGEXE</div>
-            <div class="note">NOTICE: CONTACT DEVELOPER ON TELEGRAM TO PURCHASE PRIVATE API KEY.</div>
+            
+            <div class="note-box">
+                <span class="note-text">ACCESS DENIED? CONTACT DEVELOPER ON TELEGRAM TO PURCHASE A PRIVATE API KEY.</span>
+            </div>
+
             <a href="https://t.me/configexe" class="btn">CONTACT TELEGRAM</a>
         </div>
 
@@ -115,3 +123,4 @@ def home():
     '''
 
 app = app
+                            
