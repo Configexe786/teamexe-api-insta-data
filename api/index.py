@@ -156,4 +156,4 @@ def extract_instagram():
 def home():
     home_content = '<p>Teamexe Secure Instagram API is online.</p>'
     return render_template_string(get_matrix_template("Teamexe API", "SYSTEM STATUS: ACTIVE", home_content))
-    
+        
