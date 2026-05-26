@@ -11,7 +11,7 @@ HASDATA_URL = "https://api.hasdata.com/scrape/instagram/profile"
 # SECURITY KEY
 MY_OWN_API_SECURE_KEY = "TEAMEXE786" 
 
-# HTML Template for Matrix Theme
+# Updated HTML Template with Copy Button
 MATRIX_HTML = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -22,26 +22,42 @@ MATRIX_HTML = '''
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 20px; background: black; font-family: 'Share Tech Mono', monospace; color: #0f0; overflow-x: hidden; }
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.5; }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; }
         .data-container {
-            background: rgba(0, 20, 0, 0.9); border: 2px solid #0f0;
+            background: rgba(0, 15, 0, 0.95); border: 2px solid #0f0;
             padding: 20px; border-radius: 8px; box-shadow: 0 0 20px #0f0;
-            max-width: 600px; margin: 50px auto; overflow-x: auto;
+            max-width: 600px; margin: 40px auto; position: relative;
         }
-        h2 { text-align: center; border-bottom: 2px solid #0f0; padding-bottom: 10px; margin-top: 0; }
-        pre { white-space: pre-wrap; word-wrap: break-word; font-size: 14px; color: #0f0; }
-        .status-box { text-align: center; margin-bottom: 15px; font-weight: bold; }
+        h2 { text-align: center; border-bottom: 2px solid #0f0; padding-bottom: 10px; margin-top: 0; font-size: 18px; }
+        pre { 
+            white-space: pre-wrap; word-wrap: break-word; font-size: 14px; 
+            color: #0f0; background: rgba(0, 30, 0, 0.5); padding: 15px; border-radius: 5px;
+            max-height: 450px; overflow-y: auto; border: 1px solid #030;
+        }
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .status-badge { color: #0f0; font-weight: bold; font-size: 12px; }
+        .copy-btn {
+            background: transparent; border: 1px solid #0f0; color: #0f0;
+            padding: 5px 15px; cursor: pointer; font-family: 'Share Tech Mono', monospace;
+            font-weight: bold; transition: 0.3s; border-radius: 3px;
+        }
+        .copy-btn:hover { background: #0f0; color: #000; box-shadow: 0 0 10px #0f0; }
+        .copy-btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
     <canvas id="matrix"></canvas>
     <div class="data-container">
         <h2>EXTRACTED DATA</h2>
-        <div class="status-box">STATUS: SUCCESS | CODE: 200</div>
-        <pre>{{ json_data | safe }}</pre>
+        <div class="controls">
+            <div class="status-badge">STATUS: SUCCESS (200)</div>
+            <button class="copy-btn" onclick="copyData()">COPY JSON</button>
+        </div>
+        <pre id="json-output">{{ json_data | safe }}</pre>
     </div>
 
     <script>
+        // Matrix Animation
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
@@ -63,6 +79,23 @@ MATRIX_HTML = '''
             }
         }
         setInterval(draw, 40);
+
+        // Copy Function
+        function copyData() {
+            const text = document.getElementById('json-output').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.innerText;
+                btn.innerText = "COPIED!";
+                btn.style.background = "#0f0";
+                btn.style.color = "#000";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "transparent";
+                    btn.style.color = "#0f0";
+                }, 2000);
+            });
+        }
     </script>
 </body>
 </html>
@@ -87,7 +120,7 @@ def extract_instagram():
         if response.status_code == 200:
             full_data = response.json()
             # Filtering specific fields
-            filtered_data = {
+            filtered_output = {
                 "status": "success",
                 "status_code": 200,
                 "dev": "@Configexe",
@@ -103,8 +136,9 @@ def extract_instagram():
                     "isProfessionalAccount": full_data.get("isProfessionalAccount")
                 }
             }
-            # Beautifying JSON with indentation
-            pretty_json = json.dumps(filtered_data, indent=2)
+            # Fix for clean Emojis and Newlines
+            # ensure_ascii=False prevents \ud83c type encoding
+            pretty_json = json.dumps(filtered_output, indent=2, ensure_ascii=False)
             return render_template_string(MATRIX_HTML, json_data=pretty_json)
         
         else:
@@ -115,15 +149,9 @@ def extract_instagram():
 
 @app.route('/')
 def home():
-    # Home UI from previous turn
-    return render_template_string(MATRIX_HTML, json_data='''
-    {
-      "api": "Teamexe Insta API",
-      "status": "ONLINE",
-      "developer": "@Configexe",
-      "note": "CONTACT TELEGRAM FOR API KEY"
-    }
-    ''')
+    # Standard Home Page with redirection logic or info
+    info_json = json.dumps({"api": "Teamexe Insta API", "status": "ONLINE", "dev": "@Configexe"}, indent=2)
+    return render_template_string(MATRIX_HTML, json_data=info_json)
 
 app = app
         
