@@ -187,7 +187,7 @@ def home():
     home_content = '''
     <p>Teamexe Secure Instagram API is online and fully functional.</p>
     <div class="notice-box">
-        API LICENSING: WANT TO PURCHASE YOUR OWN KEY? REACH OUT ON TELEGRAM @CONFIGEXE.
+        API LICENSING: WANT TO PURCHASE YOUR OWN API KEY? REACH OUT ON TELEGRAM.
     </div>
     '''
     return render_template_string(get_matrix_template("Teamexe API", "SYSTEM STATUS: ACTIVE", home_content))
