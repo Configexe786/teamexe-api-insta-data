@@ -14,7 +14,6 @@ MY_OWN_API_SECURE_KEY = "TEAMEXE786"
 def extract_instagram():
     user_key = request.args.get('key')
     
-    # Unauthorized Error (401)
     if user_key != MY_OWN_API_SECURE_KEY:
         return jsonify({
             "status": "error", 
@@ -23,7 +22,6 @@ def extract_instagram():
         }), 401
 
     username = request.args.get('username')
-    # Bad Request Error (400)
     if not username:
         return jsonify({
             "status": "error", 
@@ -37,7 +35,6 @@ def extract_instagram():
     try:
         response = requests.get(HASDATA_URL, headers=headers, params=params, timeout=30)
         
-        # Success (200)
         if response.status_code == 200:
             return jsonify({
                 "status": "success",
@@ -45,8 +42,6 @@ def extract_instagram():
                 "dev": "@Configexe",
                 "data": response.json()
             }), 200
-        
-        # Data Fetching / Private Account Error (404/500)
         else:
             return jsonify({
                 "status": "error", 
@@ -55,7 +50,6 @@ def extract_instagram():
             }), response.status_code
 
     except Exception as e:
-        # Internal Server Error (500)
         return jsonify({
             "status": "error", 
             "status_code": 500,
@@ -64,14 +58,14 @@ def extract_instagram():
 
 @app.route('/')
 def home():
-    # Matrix Sharp UI remains the same
+    # Title updated to "Teamexe Insta API" as per request
     return '''
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>TeamExe Hacker API</title>
+        <title>Teamexe Insta API</title>
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
         <style>
             body { margin: 0; padding: 0; background: black; overflow: hidden; font-family: 'Share Tech Mono', monospace; }
@@ -130,4 +124,4 @@ def home():
     '''
 
 app = app
-                                
+    
