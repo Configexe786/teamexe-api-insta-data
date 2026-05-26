@@ -14,11 +14,11 @@ MY_OWN_API_SECURE_KEY = "TEAMEXE786"
 def extract_instagram():
     user_key = request.args.get('key')
     if user_key != MY_OWN_API_SECURE_KEY:
-        return jsonify({"status": "error", "message": "Access Denied!"}), 401
+        return jsonify({"status": "error", "message": "Access Denied! Key Required."}), 401
 
     username = request.args.get('username')
     if not username:
-        return jsonify({"status": "error", "message": "Target missing."}), 400
+        return jsonify({"status": "error", "message": "Target username missing."}), 400
 
     headers = {"Content-Type": "application/json", "x-api-key": HASDATA_API_KEY}
     params = {"handle": username}
@@ -33,7 +33,7 @@ def extract_instagram():
 
 @app.route('/')
 def home():
-    # Matrix Sharp UI with centered compact box
+    # Matrix Sharp UI with Compact Box and Professional Note
     return '''
     <!DOCTYPE html>
     <html lang="en">
@@ -57,8 +57,13 @@ def home():
                 text-shadow: 2px 2px #003300; 
             }
             .info { font-size: 16px; margin: 10px 0; border-bottom: 1px dashed #0f0; padding-bottom: 5px; }
+            .note { 
+                font-size: 11px; color: #ff0000; margin-top: 15px; 
+                font-family: 'Share Tech Mono', monospace; font-weight: bold;
+                text-shadow: 0 0 5px #ff0000;
+            }
             .btn {
-                display: inline-block; margin-top: 20px; padding: 10px 20px;
+                display: inline-block; margin-top: 15px; padding: 10px 20px;
                 border: 1px solid #0f0; color: #0f0; text-decoration: none;
                 font-weight: bold; font-family: 'Press Start 2P', cursive; font-size: 10px;
                 transition: 0.3s; background: transparent; cursor: pointer;
@@ -73,6 +78,7 @@ def home():
             <div class="info">STATUS: ONLINE</div>
             <div class="info">DEV: TEAMEXE</div>
             <div class="info">TG: @CONFIGEXE</div>
+            <div class="note">NOTICE: CONTACT DEVELOPER ON TELEGRAM TO PURCHASE PRIVATE API KEY.</div>
             <a href="https://t.me/configexe" class="btn">CONTACT TELEGRAM</a>
         </div>
 
@@ -109,4 +115,3 @@ def home():
     '''
 
 app = app
-    
